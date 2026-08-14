@@ -1,0 +1,12 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.curekeep.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "ResetProfessionMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

@@ -46,18 +46,21 @@ displayName="${mod_name}" #mandatory
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-治愈僵尸村民后保留其职业。
+治愈僵尸村民后延迟重置职业（观察窗口，默认 30 秒，可在配置中调整）。
 
 原版中治愈瞬间会复制职业数据，但 1 tick 后村民大脑里的 ResetProfession 行为
 会因「没有工作站点记忆 + 经验为 0 + 等级 ≤ 1」把职业重置为无业。
-本模组在治愈瞬间把经验设为 1，让 ResetProfession 的条件不再成立，
-职业从此不再自动重置：村民保持职业外观与职业名、可立即交易（含治愈折扣），
-并会自行寻找附近的同职业工作台认领上班。
+本模组通过 Mixin 给 ResetProfession 加一个新条件：治愈时在村民持久数据里
+写入窗口到期时间，窗口期内跳过重置；到期后标记失效，原版逻辑恢复——
+玩家可以在窗口期内观察保留的职业并交易（含治愈折扣），
+过期后未交易过的村民照常变无业。
+
+配置：run/config/curekeep-common.toml 中的 resetDelaySeconds（秒，默认 30 秒）。
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
-#[[mixins]]
-#config="${mod_id}.mixins.json"
+[[mixins]]
+config="${mod_id}.mixins.json"
 
 # The [[accessTransformers]] block allows you to declare where your AT file is.
 # If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg

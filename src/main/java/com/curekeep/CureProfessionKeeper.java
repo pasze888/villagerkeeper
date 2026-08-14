@@ -1,5 +1,6 @@
 package com.curekeep;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
@@ -8,21 +9,21 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
 
 /**
- * 监听僵尸村民 -> 村民的治愈事件，保住治愈村民的职业。
+ * 治愈瞬间写入观察窗口标记，配合 ResetProfessionMixin 实现延迟重置职业。
  *
- * 原理：原版 Villager 大脑中的 ResetProfession 行为（优先级 10，每 tick 检查）
- * 会在同时满足以下条件时把职业重置为无业：
- *   1. 职业不是 none / nitwit（治愈瞬间职业已被复制过来，命中）
- *   2. JOB_SITE 记忆缺失（新村民大脑全新，命中）
- *   3. villagerXp == 0（僵尸村民经验通常为 0，命中）
- *   4. 等级 <= 1（命中）
- * 本模组在治愈瞬间把经验设为 1（纯 setter，无副作用），条件 3 永远不成立，
- * ResetProfession 不再触发，职业从此保留。
+ * 只负责一件事：僵尸村民被治愈成村民时，把"观察窗口到期的游戏时间"
+ * 写进村民的持久数据（随存档保存，重启/卸载后窗口依然有效）。
+ * 窗口期内的重置拦截完全由 mixin（ResetProfessionMixin）在 ResetProfession
+ * 的决策方法里完成，到期后标记自然失效，原版逻辑恢复。
  *
- * 附带效果：治愈村民保留职业外观与职业名、可立即交易（含原版治愈折扣），
- * 没有工作台时像"工作台被拆掉的村民"一样保持职业并自行认领附近同职业工作台。
+ * 原版语义的两个例外（窗口到期后由原版条件自然保证，无需特殊处理）：
+ *   - 窗口期内交易过的村民（xp > 0）：原版对交易过的村民本来就不重置；
+ *   - 窗口期内认领了工作站的村民：JOB_SITE 存在，ResetProfession 不会命中。
  */
 public class CureProfessionKeeper {
+    /** 持久数据键：观察窗口到期的游戏时间（随实体存档持久化） */
+    public static final String WINDOW_END_TAG = "curekeep_window_end";
+
     public static void register() {
         NeoForge.EVENT_BUS.register(CureProfessionKeeper.class);
     }
@@ -34,16 +35,17 @@ public class CureProfessionKeeper {
             return;
         }
 
+        // none / nitwit 本来就不会被 ResetProfession 重置，无需开窗口
         VillagerProfession profession = villager.getVillagerData().getProfession();
-        // none / nitwit 本来就不会被 ResetProfession 重置，无需干预
         if (profession == VillagerProfession.NONE || profession == VillagerProfession.NITWIT) {
             return;
         }
 
-        // 仅当会被 ResetProfession 命中（xp==0）时才干预：设为 1 破坏触发条件
-        if (villager.getVillagerXp() == 0) {
-            villager.setVillagerXp(1);
-            CureKeep.LOGGER.info("治愈保留职业: {}（xp 0→1，跳过 ResetProfession）", profession);
+        if (event.getEntity().level() instanceof ServerLevel serverLevel) {
+            int delaySeconds = Config.RESET_DELAY_SECONDS.get();
+            long delayTicks = delaySeconds * 20L;
+            villager.getPersistentData().putLong(WINDOW_END_TAG, serverLevel.getGameTime() + delayTicks);
+            CureKeep.LOGGER.info("治愈保留职业: {}（{} 秒后恢复原版重置逻辑）", profession, delaySeconds);
         }
     }
 }

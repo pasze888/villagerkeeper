@@ -143,8 +143,8 @@ neoForge {
 }
 
 dependencies {
-    // 本模组纯事件监听，不依赖任何可选模组。
-    // （megahoe 里的 JEI/Jade 等 localRuntime 依赖与本模组无关，已移除）
+    // Mixin 注解处理器：生成 refmap（开发名 -> 运行时混淆名映射），Mixin 在运行时解析注入点必需
+    annotationProcessor "org.spongepowered:mixin:0.8.7:processor"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
