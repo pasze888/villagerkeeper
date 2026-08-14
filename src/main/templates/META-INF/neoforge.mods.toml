@@ -46,14 +46,16 @@ displayName="${mod_name}" #mandatory
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-治愈僵尸村民后延迟重置职业（观察窗口，默认 30 秒，可配置）。
+Delays the profession reset after curing a zombie villager (watch window, default 30 seconds, configurable).
 
-原版治愈瞬间虽复制了职业数据，但新村民大脑全新（无工作站点记忆），
-1 tick 后 ResetProfession 行为就把职业重置为无业。
-本模组在治愈时写入观察窗口到期时间，窗口期内保留职业、可交易（含治愈折扣），
-到期后未交易过且无工作站的村民恢复原版逻辑。
+Vanilla copies profession data at the moment of curing, but the new villager has a
+brand-new brain (no workstation memory), so 1 tick later the ResetProfession behavior
+resets the profession to none. This mod writes a watch-window expiry time when curing:
+within the window the profession is kept and trading works (including the vanilla cure
+discount); after expiry, villagers who never traded and have no workstation revert to
+vanilla behavior.
 
-配置：run/config/curekeep-common.toml 中的 resetDelaySeconds（秒，默认 30）。
+Configuration: resetDelaySeconds in run/config/villagerkeeper-common.toml (seconds, default 30).
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.

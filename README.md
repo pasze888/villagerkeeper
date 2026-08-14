@@ -1,80 +1,80 @@
-# 治愈守业 CureKeep
+# VillagerKeeper
 
-NeoForge 1.21.1 模组：**治愈僵尸村民后延迟重置职业**。
+A NeoForge 1.21.1 mod: **delays the profession reset after curing zombie villagers**.
 
-## 功能
+## Features
 
-- 治愈僵尸村民后，职业保留一段**观察窗口**（默认 30 秒，可配置）
-- 窗口期内村民保留职业（外观、职业名、交易均保留），可立即交易且带原版治愈折扣
-- 窗口到期后恢复原版逻辑：未交易过且无工作站的村民重置为无业
+- After curing a zombie villager, the profession is kept for a **watch window** (default 30 seconds, configurable)
+- During the window the villager keeps its profession (appearance, profession name and trades) and can trade immediately, including the vanilla cure discount
+- After the window expires, vanilla behavior resumes: villagers who never traded and have no workstation reset to none
 
-## 原版问题
+## The vanilla problem
 
-治愈瞬间 `ZombieVillager.finishConversion` 虽把职业数据复制给了新村民，
-但新村民大脑是全新的（**没有 JOB_SITE 工作站点记忆**），1 tick 后大脑里的
-`ResetProfession` 行为就把职业重置为无业。
+At the moment of curing, `ZombieVillager.finishConversion` copies profession data to the new villager,
+but the new villager has a brand-new brain (**no JOB_SITE workstation memory**), so 1 tick later the
+`ResetProfession` behavior resets the profession to none.
 
-`ResetProfession` 的触发条件（全部满足才重置）：
+`ResetProfession` triggers only when **all** of the following are true:
 
-1. 职业不是 `none` / `nitwit`
-2. `JOB_SITE` 记忆缺失
+1. The profession is not `none` / `nitwit`
+2. The `JOB_SITE` memory is missing
 3. `villagerXp == 0`
-4. 等级 ≤ 1
+4. The level is ≤ 1
 
-治愈村民恰好全部命中。
+A cured villager hits every single one.
 
-## 原理
+## How it works
 
-**治愈瞬间**（`LivingConversionEvent.Post`）：把「窗口到期时间」写进村民持久数据
-（`curekeep_window_end`，随存档保存）。
+**At the moment of curing** (`LivingConversionEvent.Post`): the watch-window expiry time is written to the
+villager's persistent data (`villagerkeeper_window_end`, saved with the world).
 
-**窗口期内**：Mixin 给 `ResetProfession` 的决策方法（`lambda$create$0`）加一个条件
-——当前游戏时间未到窗口到期时间时，整个行为直接跳过，职业保留；
-到期后标记自然失效，原版条件照常生效。
+**During the window**: a Mixin adds a condition to `ResetProfession`'s decision method (`lambda$create$0`)
+— while the current game time has not reached the window expiry time, the whole behavior is skipped and the
+profession is kept; after expiry the marker naturally lapses and the vanilla conditions apply again.
 
-不改动任何实体数据、无需定时器，到期逻辑由条件本身完成。
+No entity data is modified and no timers are needed — expiry is handled by the condition itself.
 
-与原版语义一致的两个例外（窗口到期后由原版条件自然保证）：
-- 窗口期内**交易过**的村民（xp > 0）：原版本就不重置
-- 窗口期内**认领了工作站**的村民：`JOB_SITE` 存在，`ResetProfession` 不会命中
+Two exceptions match vanilla semantics (naturally guaranteed by the vanilla conditions after expiry):
+- Villagers who **traded** during the window (xp > 0): vanilla never resets them
+- Villagers who **claimed a workstation** during the window: `JOB_SITE` exists, so `ResetProfession` does not trigger
 
-## 配置
+## Configuration
 
-`run/config/curekeep-common.toml`：
+`run/config/villagerkeeper-common.toml`:
 
 ```toml
 [general]
-# 治愈后职业保留的观察窗口时长（秒，默认 30 秒）
-# 到期后恢复原版逻辑：未交易过且无工作站的会重置为无业
-# 设为 0 表示治愈瞬间就恢复原版逻辑
+# Profession watch-window duration after curing (seconds, default 30)
+# After expiry, revert to vanilla behavior: villagers who never traded and have no workstation reset to none
+# Set to 0 to restore vanilla behavior immediately at the moment of curing
 resetDelaySeconds = 30
 ```
 
-## 构建
+## Building
 
 ```bash
 ./gradlew build
 ```
 
-产物在 `build/libs/curekeep-0.0.1.jar`，放入 `mods` 文件夹即可。
+The artifact is `build/libs/villagerkeeper-0.0.1.jar`; drop it into the `mods` folder.
 
-## 游戏内验证
+## In-game verification
 
-1. 召唤带职业的僵尸村民（以制箭师为例）：
+1. Summon a zombie villager with a profession (fletcher as an example):
    ```
    /summon zombie_villager ~ ~ ~ {VillagerData:{profession:"minecraft:fletcher"}}
    ```
-2. 施加虚弱并喂金苹果治愈：
+2. Apply weakness and cure it with a golden apple:
    ```
    /effect give @e[type=zombie_villager] weakness 100 1
    ```
-   （对僵尸村民使用金苹果）
-3. 观察窗口期（默认 30 秒）：村民保持制箭师职业，可交易（带治愈折扣）
-4. 窗口到期：未交易的村民变无业；交易过或已认领工作站的村民保留职业
-5. 对照：不带本模组时，同一操作 1 tick 后村民就变无业
+   (then use a golden apple on the zombie villager)
+3. During the watch window (default 30 seconds): the villager keeps the fletcher profession and can trade (with the cure discount)
+4. After the window expires: villagers that never traded become unemployed; those who traded or claimed a workstation keep their profession
+5. Control: without this mod, the same procedure leaves the villager unemployed after 1 tick
 
-## 说明
+## Notes
 
-- 只处理僵尸村民 → 村民的治愈方向；反向（村民 → 僵尸）原版本就复制职业数据
-- 事件监听 + 一个 Mixin（`ResetProfessionMixin`），窗口到期时间存持久数据，
-  服务器重启、区块卸载后窗口依然有效
+- Only handles the zombie villager → villager curing direction; the reverse (villager → zombie) already copies profession data in vanilla
+- One event listener + one Mixin (`ResetProfessionMixin`); the window expiry time is stored in persistent data,
+  so the window remains valid across server restarts and chunk unloads
