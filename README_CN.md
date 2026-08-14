@@ -80,3 +80,8 @@ resetDelaySeconds = 30
 - 只处理僵尸村民 → 村民的治愈方向；反向（村民 → 僵尸）原版本就复制职业数据
 - 事件监听 + 一个 Mixin（`ResetProfessionMixin`），窗口到期时间存持久数据，
   服务器重启、区块卸载后窗口依然有效
+
+## 许可证
+
+[GNU 宽通用公共许可证 v3.0](LICENSE)（LGPL-3.0）。
+Copyright (c) 2026 pasze888
