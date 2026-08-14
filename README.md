@@ -78,3 +78,8 @@ The artifact is `build/libs/villagerkeeper-0.0.1.jar`; drop it into the `mods` f
 - Only handles the zombie villager → villager curing direction; the reverse (villager → zombie) already copies profession data in vanilla
 - One event listener + one Mixin (`ResetProfessionMixin`); the window expiry time is stored in persistent data,
   so the window remains valid across server restarts and chunk unloads
+
+## License
+
+[GNU Lesser General Public License v3.0](LICENSE) (LGPL-3.0).
+Copyright (c) 2026 pasze888
