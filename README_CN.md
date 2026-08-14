@@ -58,7 +58,7 @@ resetDelaySeconds = 30
 ./gradlew build
 ```
 
-产物在 `build/libs/villagerkeeper-0.0.1.jar`，放入 `mods` 文件夹即可。
+产物在 `build/libs/villagerkeeper-1.0.0.jar`，放入 `mods` 文件夹即可。
 
 ## 游戏内验证
 

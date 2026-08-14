@@ -58,7 +58,7 @@ resetDelaySeconds = 30
 ./gradlew build
 ```
 
-The artifact is `build/libs/villagerkeeper-0.0.1.jar`; drop it into the `mods` folder.
+The artifact is `build/libs/villagerkeeper-1.0.0.jar`; drop it into the `mods` folder.
 
 ## In-game verification
 
