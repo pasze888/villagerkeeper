@@ -1,4 +1,4 @@
-package com.villagerkeeper;
+package io.github.pasze888.villagerkeeper;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.monster.ZombieVillager;

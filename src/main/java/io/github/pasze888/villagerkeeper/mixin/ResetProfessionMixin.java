@@ -1,6 +1,6 @@
-package com.villagerkeeper.mixin;
+package io.github.pasze888.villagerkeeper.mixin;
 
-import com.villagerkeeper.CureProfessionKeeper;
+import io.github.pasze888.villagerkeeper.CureProfessionKeeper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.ResetProfession;
 import net.minecraft.world.entity.npc.Villager;

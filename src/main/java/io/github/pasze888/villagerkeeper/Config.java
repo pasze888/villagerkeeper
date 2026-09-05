@@ -1,4 +1,4 @@
-package com.villagerkeeper;
+package io.github.pasze888.villagerkeeper;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 

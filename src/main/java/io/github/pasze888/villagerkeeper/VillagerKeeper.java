@@ -1,4 +1,4 @@
-package com.villagerkeeper;
+package io.github.pasze888.villagerkeeper;
 
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
