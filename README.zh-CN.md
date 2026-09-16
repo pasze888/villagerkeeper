@@ -1,6 +1,6 @@
 # VillagerKeeper（村民守护者）
 
-[English](README.md) | 简体中文
+[English](README.md) | [简体中文](README.zh-CN.md)
 
 NeoForge 1.21.1 模组：**治愈僵尸村民后延迟重置职业**。
 

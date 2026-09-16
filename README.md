@@ -1,6 +1,6 @@
 # VillagerKeeper
 
-English | [简体中文](README_CN.md)
+[English](README.md) | [简体中文](README.zh-CN.md)
 
 A NeoForge 1.21.1 mod: **delays the profession reset after curing zombie villagers**.
 
